@@ -1,4 +1,4 @@
-function [frrresults, steps] = PCA_Mode1()
+function [frrresults, farresults, steps] = PCA_Mode1()
 
 ddir = dir('./orl_faces');
 data = []; % Matrix to store all of our images
@@ -96,6 +96,7 @@ newtest = vec'*tdata;
 
 % Evaluate false reject rate at various distance rejection thresholds
 frrresults = [];
+farresults = [];
 steps = [];
 p = 700;
 while (p > 0)
@@ -103,8 +104,7 @@ while (p > 0)
     actuallabels = [];
     class = 0;
     frrnum = 0;
-    rejects = [];
-    accepts = [];
+    farnum = 0;
 
     for i=1:size(newtest,2)
         % Compute distance from i'th test image to all training data
@@ -125,15 +125,16 @@ while (p > 0)
         end
         actuallabels(end+1) = class;
         % If predicted label doesn't match known class add to frr sum
-        if (class ~= predictlabels(end))
+        if (predictlabels(end) == -1)
             frrnum = frrnum + 1;
-            rejects(end+1) = a;
-        else
-            accepts(end+1) = a;
+        elseif (class ~= predictlabels(end))
+            farnum = farnum + 1;
         end
     end
     frr = frrnum / 200;
+    far = farnum / 200;
     frrresults(end+1) = frr;
+    farresults(end+1) = far;
     steps(end+1) = p;
     p = p - 5;
 end
